@@ -1,7 +1,19 @@
-import React from 'react'
+import React from "react";
+import { useLocation } from "react-router-dom";
+import styles from "./Home.module.css"; // Import CSS module
 
 const Home = () => {
-  return (<h1>Home Page</h1>)
-}
+  const location = useLocation();
+  const username = location.state?.username || "User";
 
-export default Home
+  return (
+    <div className={styles.container}>
+      <div className={styles.welcomeBox}>
+        <h1 className={styles.welcomeText}>Welcome, {username}!</h1>
+        <p className={styles.subText}>Glad to have you here. 🎉</p>
+      </div>
+    </div>
+  );
+};
+
+export default Home;

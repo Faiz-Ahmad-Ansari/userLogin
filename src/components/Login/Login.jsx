@@ -1,9 +1,11 @@
 import React, { useState } from "react";
-import { FaEye, FaEyeSlash } from "react-icons/fa"; // Import icons
+import { useNavigate } from "react-router-dom"; // Import useNavigate
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 import InputField from "../reusable/InputField/InputField";
 import styles from "./Login.module.css";
 
 const Login = () => {
+  const navigate = useNavigate(); // Hook for navigation
   const [loginDetails, setLoginDetails] = useState([
     {
       name: "username",
@@ -42,6 +44,7 @@ const Login = () => {
   const handleLogin = () => {
     let newErrors = {};
     let isValid = true;
+    let username = "";
 
     const updatedLoginDetails = loginDetails.map((field) => {
       const validationMessage = field.validation(field.value);
@@ -49,6 +52,7 @@ const Login = () => {
         newErrors[field.name] = validationMessage;
         isValid = false;
       }
+      if (field.name === "username") username = field.value;
       return field;
     });
 
@@ -56,6 +60,7 @@ const Login = () => {
     if (!isValid) return;
 
     console.log("Logging in...", updatedLoginDetails);
+    navigate("/home", { state: { username } }); // Navigate with username
   };
 
   return (
@@ -64,18 +69,20 @@ const Login = () => {
         <h2 className={styles.title}>Login</h2>
         {loginDetails.map((field, i) => (
           <div key={i} className={styles.inputWrapper}>
-            <InputField
-              type={field.name === "password" && showPassword ? "text" : field.type}
-              placeholder={field.placeholder}
-              name={field.name}
-              value={field.value}
-              onChange={changeHandler}
-            />
-            {field.name === "password" && (
-              <span className={styles.eyeIcon} onClick={togglePasswordVisibility}>
-                {showPassword ? <FaEyeSlash /> : <FaEye />}
-              </span>
-            )}
+            <div style={{ width: "100%", position: "relative" }}>
+              <InputField
+                type={field.name === "password" && showPassword ? "text" : field.type}
+                placeholder={field.placeholder}
+                name={field.name}
+                value={field.value}
+                onChange={changeHandler}
+              />
+              {field.name === "password" && (
+                <span className={styles.eyeIcon} onClick={togglePasswordVisibility}>
+                  {showPassword ? <FaEyeSlash /> : <FaEye />}
+                </span>
+              )}
+            </div>
             {errors[field.name] && <p className={styles.error}>{errors[field.name]}</p>}
           </div>
         ))}
