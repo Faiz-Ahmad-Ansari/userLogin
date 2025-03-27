@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom"; // Import useNavigate
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import InputField from "../reusable/InputField/InputField";
-import styles from "./Login.module.css";
+import loginStyles from "./Login.module.css";
+import signUpStyles from "../SignUp/Signup.module.css";
 
 const Login = () => {
   const navigate = useNavigate(); // Hook for navigation
@@ -45,30 +46,37 @@ const Login = () => {
     let newErrors = {};
     let isValid = true;
     let username = "";
+    let password = "";
 
-    const updatedLoginDetails = loginDetails.map((field) => {
+    loginDetails.forEach((field) => {
       const validationMessage = field.validation(field.value);
       if (validationMessage !== true) {
         newErrors[field.name] = validationMessage;
         isValid = false;
       }
       if (field.name === "username") username = field.value;
-      return field;
+      if (field.name === "password") password = field.value;
     });
 
     setErrors(newErrors);
     if (!isValid) return;
 
-    console.log("Logging in...", updatedLoginDetails);
+    const storedUser = JSON.parse(localStorage.getItem("user"));
+    if (!storedUser || storedUser.find(f => f.name === "username").value !== username || storedUser.find(f => f.name === "password").value !== password) {
+      setErrors((prev) => ({ ...prev, general: "User not available" }));
+      return;
+    }
+
+    console.log("Logging in...", loginDetails);
     navigate("/home", { state: { username } }); // Navigate with username
   };
 
   return (
-    <div className={styles.container}>
-      <div className={styles.loginBox}>
-        <h2 className={styles.title}>Login</h2>
+    <div className={loginStyles.container}>
+      <div className={loginStyles.loginBox}>
+        <h2 className={loginStyles.title}>Login</h2>
         {loginDetails.map((field, i) => (
-          <div key={i} className={styles.inputWrapper}>
+          <div key={i} className={loginStyles.inputWrapper}>
             <div style={{ width: "100%", position: "relative" }}>
               <InputField
                 type={field.name === "password" && showPassword ? "text" : field.type}
@@ -78,16 +86,20 @@ const Login = () => {
                 onChange={changeHandler}
               />
               {field.name === "password" && (
-                <span className={styles.eyeIcon} onClick={togglePasswordVisibility}>
+                <span className={loginStyles.eyeIcon} onClick={togglePasswordVisibility}>
                   {showPassword ? <FaEyeSlash /> : <FaEye />}
                 </span>
               )}
             </div>
-            {errors[field.name] && <p className={styles.error}>{errors[field.name]}</p>}
+            {errors[field.name] && <p className={loginStyles.error}>{errors[field.name]}</p>}
           </div>
         ))}
-        <button className={styles.loginButton} onClick={handleLogin}>
+        {errors.general && <p className={loginStyles.error}>{errors.general}</p>}
+        <button className={loginStyles.loginButton} onClick={handleLogin}>
           Log In
+        </button>
+        <button className={signUpStyles.signUpButton} onClick={() => navigate("/signup")}>
+          Sign Up
         </button>
       </div>
     </div>
